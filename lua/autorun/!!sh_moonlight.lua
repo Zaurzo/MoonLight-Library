@@ -75,7 +75,7 @@ do
 
         AddCSLuaFile(path)
 
-        return import(pkg)
+        return import(path)
     end
 
     function moonlight.AddCSLuaImport(pkg)
