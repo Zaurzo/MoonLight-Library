@@ -81,7 +81,7 @@ do
     function moonlight.AddCSLuaImport(pkg)
         local path = get_package_path(pkg)
 
-        AddCSLuaFile(path)
+        return AddCSLuaFile(path)
     end
 
     moonlight.import = import
@@ -104,11 +104,6 @@ do
     ---@return table
     function moonlight.extend(lib)
         local extension = {}
-
-        for k, v in pairs(lib) do
-            extension[k] = v
-        end
-
         extension.__lib = lib
 
         return setmetatable(extension, extension_meta)
