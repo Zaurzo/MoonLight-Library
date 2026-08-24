@@ -13,7 +13,7 @@ function debug.clearimport(pkg)
 end
 
 ---@param enabled boolean
-function debug.setimportcaching(enabled)
+function debug.setcacheimports(enabled)
     import._caching_enabled = enabled
 end
 
