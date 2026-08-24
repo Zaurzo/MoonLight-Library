@@ -3,6 +3,9 @@
 
 moonlight = moonlight or {}
 
+-- rets = returns / return values
+-- mdule = module
+
 --[[ moonlight.import ]] 
 do
     local import = {
@@ -10,22 +13,22 @@ do
         _caching_enabled = true
     }
 
-    local is_moonlight_lib do
+    local is_moonlight_mdule do
         local file_list = file.Find('lua/moonlight/*.lua', 'GAME')
     
-        is_moonlight_lib = {}
+        is_moonlight_mdule = {}
 
         for _, file_name in ipairs(file_list) do
-            local lib_name = file_name:sub(1, -5)
+            local mdule_name = file_name:sub(1, -5)
 
-            is_moonlight_lib[lib_name] = true
+            is_moonlight_mdule[mdule_name] = true
         end
     end
 
     ---@param pkg string
     ---@return string
     function import.getpath(pkg)
-        if is_moonlight_lib[pkg] then
+        if is_moonlight_mdule[pkg] then
             return 'moonlight/' .. pkg .. '.lua'
         end
 
@@ -93,8 +96,8 @@ end
 do
     local extension_meta = {
         __index = function(self, key)
-            local parent_lib = rawget(self, '__lib')
-            local value = parent_lib[key]
+            local mdule = rawget(self, '__mdule')
+            local value = mdule[key]
 
             self[key] = value
 
@@ -102,11 +105,11 @@ do
         end
     }
 
-    ---@param lib table
+    ---@param mdule table
     ---@return table
-    function moonlight.extend(lib)
+    function moonlight.extend(mdule)
         local extension = {}
-        extension.__lib = lib
+        extension.__mdule = mdule
 
         return setmetatable(extension, extension_meta)
     end
