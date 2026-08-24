@@ -63,8 +63,15 @@ do
 
     setmetatable(import, { __call = import_package })
 
-    function import.clearcache()
-        import.cache = {}
+    ---@param pkg string
+    function import.clear(pkg)
+        if pkg == '*' then
+            import.cache = {}
+        else
+            local path = get_package_path(pkg)
+
+            import.cache[path] = nil
+        end
     end
 
     ---@param enabled boolean
