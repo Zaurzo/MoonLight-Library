@@ -6,12 +6,16 @@ moonlight = moonlight or {}
 ---@param expr any The expression to assert.
 ---@param msg? string The error message to throw if the assertion fails.
 ---@param level? number The level to throw the error at.
-function moonlight.assert(expr, msg, level)
+---@param ... string The parameters to use to format the error message string.
+function moonlight.assert(expr, msg, level, ...)
     if not expr then
-        level = level or 1
         msg = msg or 'assertion failed!'
 
-        return error(msg, level)
+        if (...) ~= nil then
+            msg = msg:format(...)
+        end
+
+        return error(msg, level or 1)
     end
     
     return expr
@@ -32,6 +36,7 @@ do
     do
         local file_list, dir_list = file.Find('lua/moonlight/*', 'GAME')
 
+        ---@param list string[]
         local function add_to_discovery(list)
             for _, name in ipairs(list) do
                 local mdule_name = name
