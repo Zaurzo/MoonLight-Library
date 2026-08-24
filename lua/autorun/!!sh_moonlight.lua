@@ -67,7 +67,7 @@ do
 
     ---@param enabled boolean
     function import.setcaching(enabled)
-        import.cache_enabled = enabled
+        import.caching_enabled = enabled
     end
 
     function moonlight.importcs(pkg)
