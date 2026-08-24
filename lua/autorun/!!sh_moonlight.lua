@@ -30,28 +30,39 @@ do
     local is_moonlight_module = {}
 
     do
-        local file_list = file.Find('lua/moonlight/*.lua', 'GAME')
+        local file_list, dir_list = file.Find('lua/moonlight/*', 'GAME')
 
-        for _, file_name in ipairs(file_list) do
-            local mdule_name = file_name:sub(1, -5)
+        local function add_to_discovery(list)
+            for _, name in ipairs(list) do
+                local mdule_name = name
 
-            is_moonlight_module[mdule_name] = true
+                if mdule_name:EndsWith('.lua') then
+                    mdule_name = mdule_name:sub(1, -5)
+                end
+
+                is_moonlight_module[mdule_name] = true
+            end
         end
+
+        add_to_discovery(file_list)
+        add_to_discovery(dir_list)
     end
 
     ---@param pkg string
-    ---@return string
+    ---@return string path
+    ---@return boolean isDirectory
     function import.getpath(pkg)
         if is_moonlight_module[pkg] then
-            return 'moonlight/' .. pkg .. '.lua'
-        end
-        
-        -- if we have slashes, assume we are a file path
-        if pkg:find('/', 1, true) or pkg:find('\\', 1, true) then
-            return pkg
+            pkg = 'moonlight.' .. pkg
         end
 
-        return pkg:gsub('%.', '/') .. '.lua'
+        local path = pkg:gsub('%.', '/')
+
+        if file.IsDir('lua/' .. path, 'GAME') then
+            return path, true
+        end
+
+        return path .. '.lua', false
     end
 
     ---@param pkg string
@@ -62,15 +73,23 @@ do
     end
 
     function moonlight.importcs(pkg)
-        local path = import.getpath(pkg)
+        local path, is_dir = import.getpath(pkg)
 
-        AddCSLuaFile(path)
+        if is_dir then
+            AddCSLuaFile(path .. '/cl_init.lua')
+        else
+            AddCSLuaFile(path)
+        end
 
         return import(path)
     end
 
     function moonlight.AddCSLuaImport(pkg)
-        local path = import.getpath(pkg)
+        local path, is_dir = import.getpath(pkg)
+
+        if is_dir then
+            path = path .. '/cl_init.lua'
+        end
 
         return AddCSLuaFile(path)
     end
@@ -79,25 +98,38 @@ do
     ---@param ...? string
     ---@return ... any
     local function import_package(self, pkg)
-        local path = import.getpath(pkg)
+        local path, is_dir = import.getpath(pkg)
+        local rets = import._caching_enabled and import._cache[path]
 
-        if import._caching_enabled then
-            local rets = import._cache[path]
-            if rets == true then return end
-
-            if rets then
+        if rets then
+            if rets ~= true then
                 return unpack(rets, 1, rets.n)
+            end
+
+            return
+        end
+
+        local file_path = path
+
+        if is_dir then
+            if SERVER then
+                file_path = file_path .. '/init.lua'
+            else
+                file_path = file_path .. '/cl_init.lua'
             end
         end
 
-        local rets, ret_count = table.Pack(include(path))
-
-        rets.n = ret_count
-        import._cache[path] = ret_count > 0 and rets or true
+        local ret_count
+        rets, ret_count = table.Pack(include(file_path))
 
         if ret_count > 0 then
+            rets.n = ret_count
+            import._cache[path] = rets
+
             return unpack(rets, 1, ret_count)
         end
+
+        import._cache[path] = true
     end
 
     setmetatable(import, { __call = import_package })
