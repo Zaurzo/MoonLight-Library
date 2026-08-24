@@ -6,8 +6,8 @@ moonlight = moonlight or {}
 --[[ moonlight.import ]] 
 do
     local import = {
-        cache = {},
-        caching_enabled = true
+        _cache = {},
+        _caching_enabled = true
     }
 
     local is_moonlight_lib do
@@ -24,7 +24,7 @@ do
 
     ---@param pkg string
     ---@return string
-    local function get_package_path(pkg)
+    function import.getpath(pkg)
         if is_moonlight_lib[pkg] then
             return 'moonlight/' .. pkg .. '.lua'
         end
@@ -37,13 +37,36 @@ do
     end
 
     ---@param pkg string
+    function import.isloaded(pkg)
+        local path = import.getpath(pkg)
+
+        return import._cache[path] ~= nil
+    end
+
+    function moonlight.importcs(pkg)
+        local path = import.getpath(pkg)
+
+        AddCSLuaFile(path)
+
+        return import(path)
+    end
+
+    function moonlight.AddCSLuaImport(pkg)
+        local path = import.getpath(pkg)
+
+        return AddCSLuaFile(path)
+    end
+
+    -- rets = returns / return values
+
+    ---@param pkg string
     ---@param ...? string
     ---@return ... any
     local function import_package(self, pkg)
-        local path = get_package_path(pkg)
+        local path = import.getpath(pkg)
 
-        if import.caching_enabled then
-            local rets = import.cache[path]
+        if import._caching_enabled then
+            local rets = import._cache[path]
             if rets == true then return end
 
             if rets then
@@ -54,7 +77,7 @@ do
         local rets, ret_count = table.Pack(include(path))
 
         rets.n = ret_count
-        import.cache[path] = ret_count > 0 and rets or true
+        import._cache[path] = ret_count > 0 and rets or true
 
         if ret_count > 0 then
             return unpack(rets, 1, ret_count)
@@ -62,43 +85,6 @@ do
     end
 
     setmetatable(import, { __call = import_package })
-
-    ---@param pkg string
-    function import.clear(pkg)
-        if pkg == '*' then
-            import.cache = {}
-        else
-            local path = get_package_path(pkg)
-
-            import.cache[path] = nil
-        end
-    end
-
-    ---@param pkg string
-    function import.isloaded(pkg)
-        local path = get_package_path(pkg)
-
-        return import.cache[path] ~= nil
-    end
-
-    ---@param enabled boolean
-    function import.setcaching(enabled)
-        import.caching_enabled = enabled
-    end
-
-    function moonlight.importcs(pkg)
-        local path = get_package_path(pkg)
-
-        AddCSLuaFile(path)
-
-        return import(path)
-    end
-
-    function moonlight.AddCSLuaImport(pkg)
-        local path = get_package_path(pkg)
-
-        return AddCSLuaFile(path)
-    end
 
     moonlight.import = import
 end
