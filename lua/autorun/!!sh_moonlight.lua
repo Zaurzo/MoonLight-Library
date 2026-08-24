@@ -13,25 +13,9 @@ do
         _caching_enabled = true
     }
 
-    local is_moonlight_mdule do
-        local file_list = file.Find('lua/moonlight/*.lua', 'GAME')
-    
-        is_moonlight_mdule = {}
-
-        for _, file_name in ipairs(file_list) do
-            local mdule_name = file_name:sub(1, -5)
-
-            is_moonlight_mdule[mdule_name] = true
-        end
-    end
-
     ---@param pkg string
     ---@return string
     function import.getpath(pkg)
-        if is_moonlight_mdule[pkg] then
-            return 'moonlight/' .. pkg .. '.lua'
-        end
-
         if pkg:EndsWith('.lua') then
             return pkg
         end
@@ -59,8 +43,6 @@ do
 
         return AddCSLuaFile(path)
     end
-
-    -- rets = returns / return values
 
     ---@param pkg string
     ---@param ...? string
@@ -114,3 +96,30 @@ do
         return setmetatable(extension, extension_meta)
     end
 end
+
+--[[ Lazy importing moonlight modules ]]
+
+local is_moonlight_module = {}
+local import = moonlight.import
+
+do
+    local file_list = file.Find('lua/moonlight/*.lua', 'GAME')
+
+    for _, file_name in ipairs(file_list) do
+        local mdule_name = file_name:sub(1, -5)
+
+        is_moonlight_module[mdule_name] = true
+    end
+end
+
+setmetatable(moonlight, {
+    __index = function(self, key)
+        if not is_moonlight_module[key] then return end
+
+        local mdule = import('moonlight/' .. key .. '.lua')
+
+        self[key] = mdule
+
+        return mdule
+    end
+})
