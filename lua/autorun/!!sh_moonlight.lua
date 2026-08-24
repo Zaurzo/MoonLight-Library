@@ -46,7 +46,8 @@ do
             return 'moonlight/' .. pkg .. '.lua'
         end
         
-        if pkg:EndsWith('.lua') then
+        -- if we have slashes, assume we are a file path
+        if pkg:find('/', 1, true) or pkg:find('\\', 1, true) then
             return pkg
         end
 
