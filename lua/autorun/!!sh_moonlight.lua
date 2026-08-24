@@ -56,7 +56,9 @@ do
         rets.n = ret_count
         import.cache[path] = ret_count > 0 and rets or true
 
-        return unpack(rets, 1, ret_count)
+        if ret_count > 0 then
+            return unpack(rets, 1, ret_count)
+        end
     end
 
     setmetatable(import, { __call = import_package })
