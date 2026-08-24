@@ -37,8 +37,9 @@ do
     end
 
     ---@param pkg string
-    ---@return table
-    local function get_import_rets(pkg)
+    ---@param ...? string
+    ---@return ... any
+    local function import_package(self, pkg)
         local path = get_package_path(pkg)
 
         if import.caching_enabled then
@@ -46,7 +47,7 @@ do
             if rets == true then return end
 
             if rets then
-                return rets
+                return unpack(rets, 1, rets.n)
             end
         end
 
@@ -54,31 +55,6 @@ do
 
         rets.n = ret_count
         import.cache[path] = ret_count > 0 and rets or true
-
-        return rets
-    end
-
-    ---@param pkg string
-    ---@param ...? string
-    ---@return ... any
-    local function import_package(self, pkg, ...)
-        local rets = get_import_rets(pkg)
-        if not rets then return end
-
-        local lib_field_count = select('#', ...)
-
-        if lib_field_count > 0 and rets[1] then
-            local lib_fields = {}
-            local lib = rets[1]
-
-            for i = 1, lib_field_count do
-                local lib_field_name = select(i, ...)
-
-                lib_fields[i] = lib[lib_field_name]
-            end
-
-            return unpack(lib_fields, 1, lib_field_count)
-        end
 
         return unpack(rets, 1, rets.n)
     end
@@ -94,12 +70,12 @@ do
         import.cache_enabled = enabled
     end
 
-    function moonlight.importcs(pkg, ...)
+    function moonlight.importcs(pkg)
         local path = get_package_path(pkg)
 
         AddCSLuaFile(path)
 
-        return import(pkg, ...)
+        return import(pkg)
     end
 
     function moonlight.AddCSLuaImport(pkg)
