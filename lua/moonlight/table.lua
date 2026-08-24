@@ -15,11 +15,10 @@ local weak_metatables = {
 ---@param mode string
 ---@return table
 function table.weak(mode)
-    if not mode or not weak_metatables[mode] then
-        return error('invalid mode')
-    end
+    local meta = mode and weak_metatables[mode]
+    moonlight.assert(meta, 'invalid mode (expected k, v, or kv)', 2)
 
-    return setmetatable({}, weak_metatables[mode])
+    return setmetatable({}, meta)
 end
 
 ---@param tbl table

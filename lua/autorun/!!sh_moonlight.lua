@@ -3,6 +3,20 @@
 
 moonlight = moonlight or {}
 
+---@param expr any The expression to assert.
+---@param msg? string The error message to throw if the assertion fails.
+---@param level? number The level to throw the error at.
+function moonlight.assert(expr, msg, level)
+    if not expr then
+        level = level or 1
+        msg = msg or 'assertion failed!'
+
+        return error(msg, level)
+    end
+    
+    return expr
+end
+
 -- rets = returns / return values
 -- mdule = module
 
