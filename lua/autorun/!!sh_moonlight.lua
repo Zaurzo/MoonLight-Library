@@ -74,6 +74,13 @@ do
         end
     end
 
+    ---@param pkg string
+    function import.isloaded(pkg)
+        local path = get_package_path(pkg)
+
+        return import.cache[path] ~= nil
+    end
+
     ---@param enabled boolean
     function import.setcaching(enabled)
         import.caching_enabled = enabled
