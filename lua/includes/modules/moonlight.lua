@@ -5,6 +5,13 @@ AddCSLuaFile()
 
 moonlight = {}
 
+local is_moonlight_module = {
+    ['class'] = true,
+    ['debug'] = true,
+    ['net'] = true,
+    ['table'] = true
+}
+
 ---@param expr any The expression to assert.
 ---@param msg? string The error message to throw if the assertion fails.
 ---@param level? number The level to throw the error at.
@@ -32,28 +39,6 @@ do
         _cache = {},
         _caching_enabled = true
     }
-
-    local is_moonlight_module = {}
-
-    do
-        local file_list, dir_list = file.Find('lua/moonlight/*', 'GAME')
-
-        ---@param list string[]
-        local function add_to_discovery(list)
-            for _, name in ipairs(list) do
-                local mdule_name = name
-
-                if mdule_name:EndsWith('.lua') then
-                    mdule_name = mdule_name:sub(1, -5)
-                end
-
-                is_moonlight_module[mdule_name] = true
-            end
-        end
-
-        add_to_discovery(file_list)
-        add_to_discovery(dir_list)
-    end
 
     ---@param pkg string
     ---@return string path
