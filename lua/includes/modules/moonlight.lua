@@ -1,7 +1,9 @@
+AddCSLuaFile()
+
 -- MoonLight Library
 -- By Zaurzo
 
-moonlight = moonlight or {}
+moonlight = {}
 
 ---@param expr any The expression to assert.
 ---@param msg? string The error message to throw if the assertion fails.
