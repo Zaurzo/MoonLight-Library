@@ -1,50 +1,112 @@
-local class_meta = {}
+---@diagnostic disable
+-- MoonLight Class Meta
 
-class_meta.__init = function() end
-class_meta.__index = class_meta
-class_meta.__name = 'Class'
+local class_meta = {}
+local reserved = {
+    base = true,
+    __name = true
+}
+
+function class_meta:__newindex(k, v)
+    moonlight.assert(not reserved[k], 'cannot override reserved field %q', 2, k)
+
+    self._class[k] = v
+end
+
+function class_meta:__tostring()
+    local class = self._class
+    local base = getmetatable(class)
+
+    if base then
+        return string.format('Class [%s][%s]', class.__name, base.__name)
+    end
+
+    return string.format('Class [%s]', class.__name)
+end
+
+local function instance_init()
+    return error('instance is already initialized')
+end
 
 function class_meta:__call(...)
-    local instance = setmetatable({}, self)
-    instance:__init(...)
+    local instance = {}
+    local class = self._class ---@as table
+
+    instance.base = getmetatable(class)
+
+    setmetatable(instance, class)
+
+    instance:init(...)
+    instance.init = instance_init
 
     return instance
 end
 
-function class_meta:__tostring()
-    local base = self.base
-    local name = self.__name
-    
-    if base then
-        return string.format('Class [%s][%s]', name, base.__name)
+-- Class Module
+
+local class = {}
+
+function class.ismoonlight(obj)
+    return getmetatable(obj) == class_meta
+end
+
+---@param class table
+function class.nameof(instance)
+    if class.ismoonlight(instance) then
+        return instance._class.__name
     end
 
-    return string.format('Class [%s]', name)
+    local class = getmetatable(instance)
+
+    return class and class.__name or nil
+end
+
+function class.is(instance, class)
+    class = class._class or class
+
+    if not class then 
+        return false 
+    end
+
+    local mt = getmetatable(instance)
+
+    while mt do
+        if mt == class or mt.__name == class then
+            return true
+        end
+
+        mt = getmetatable(mt)
+    end
+
+    return false
 end
 
 local function instance_tostring(self)
-    return string.format('%s: %p', self.__name, self)
+    local class = getmetatable(self)
+
+    return string.format('%s: %p', class.__name, self)
 end
 
-local function new_class(name, base)
-    moonlight.assert(isstring(name), 'class name must be a string', 2)
-    moonlight.assert(not base or istable(base), 'base class must be a table', 2)
+local emptyf = function() end
 
-    local class = {}
+local function new_class(self, name, base)
+    moonlight.assert(isstring(name), 'class name is not a string', 2)
 
-    if base then
-        for k, v in pairs(base) do
-            class[k] = v
-        end
+    local class = { init = emptyf }
 
-        class.base = base
-    end
-
-    class.__index = class
     class.__name = name
+    class.__index = class
     class.__tostring = instance_tostring
 
-    return setmetatable(class, class_meta)
+    if base then
+        moonlight.assert(self.ismoonlight(base), 'base class is not a moonlight class', 2)
+
+        setmetatable(class, base._class)
+    end
+
+    return setmetatable({ _class = class }, class_meta)
 end
 
-return new_class
+setmetatable(class, { __call = new_class })
+
+return class
