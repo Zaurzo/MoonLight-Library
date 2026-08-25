@@ -5,11 +5,14 @@ AddCSLuaFile()
 
 moonlight = {}
 
+-- A hard-coded list is required as none of the modules are sent to the client by default
+-- Therefore, file.Find will not find them on the client-side
 local is_moonlight_module = {
     ['class'] = true,
     ['debug'] = true,
     ['net'] = true,
-    ['table'] = true
+    ['table'] = true,
+    ['classes.queue'] = true
 }
 
 ---@param expr any The expression to assert.
@@ -73,7 +76,7 @@ do
             AddCSLuaFile(path)
         end
 
-        return import(path)
+        return import(pkg)
     end
 
     function moonlight.AddCSLuaImport(pkg)
