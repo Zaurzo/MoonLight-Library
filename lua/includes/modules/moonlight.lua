@@ -101,6 +101,11 @@ do
         return AddCSLuaFile(path)
     end
 
+    ---@return table
+    local function pack(...)
+        return { n = select('#', ...), ... }
+    end
+
     ---@param pkg string
     ---@param ...? string
     ---@return ... any
@@ -126,14 +131,12 @@ do
             end
         end
 
-        local ret_count
-        rets, ret_count = table.Pack(include(file_path))
+        rets = pack(include(file_path))
 
-        if ret_count > 0 then
-            rets.n = ret_count
+        if rets.n > 0 then
             import._cache[path] = rets
 
-            return unpack(rets, 1, ret_count)
+            return unpack(rets, 1, rets.n)
         end
 
         import._cache[path] = true
