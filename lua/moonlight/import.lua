@@ -20,7 +20,7 @@ local is_moonlight_module = {
 ---@return boolean isDirectory
 function import.getpath(pkg)
     if is_moonlight_module[pkg] then
-        pkg = 'moonlight.' .. pkg
+        pkg = 'moonlight.modules.' .. pkg
     end
 
     local path = pkg:gsub('%.', '/')
