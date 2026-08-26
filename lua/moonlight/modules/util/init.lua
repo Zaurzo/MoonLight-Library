@@ -1,4 +1,4 @@
-local util = {}
+local util = include('shared.lua')
 
 ---@param pos Vector
 ---@param magnitude? number

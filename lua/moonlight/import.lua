@@ -39,26 +39,38 @@ function import.isloaded(pkg)
     return import._cache[path] ~= nil
 end
 
+local function add_cs_import(path, is_dir)
+    if not is_dir then
+        return AddCSLuaFile(path)
+    end
+
+    local file_list = file.Find('lua/' .. path .. '/*', 'GAME')
+
+    -- automatically mark all files that should be sent to the client
+
+    for _, file_name in ipairs(file_list) do
+        local prefix = file_name:sub(-3)
+
+        if file_name == 'shared.lua' or prefix == 'cl_' or prefix == 'sh_' then
+            AddCSLuaFile(path .. '/' .. file_name)
+        end
+    end
+end
+
 function moon.importcs(pkg)
     local path, is_dir = import.getpath(pkg)
 
-    if is_dir then
-        AddCSLuaFile(path .. '/cl_init.lua')
-    else
-        AddCSLuaFile(path)
-    end
+    add_cs_import(path, is_dir)
 
     return import(pkg)
 end
 
 function moon.AddCSLuaImport(pkg)
+    if CLIENT then return end
+
     local path, is_dir = import.getpath(pkg)
 
-    if is_dir then
-        path = path .. '/cl_init.lua'
-    end
-
-    return AddCSLuaFile(path)
+    return add_cs_import(path, is_dir)
 end
 
 ---@return table
