@@ -11,6 +11,7 @@ local is_moonlight_module = {
     ['debug'] = true,
     ['net'] = true,
     ['table'] = true,
+    ['util'] = true,
     ['classes.queue'] = true
 }
 
