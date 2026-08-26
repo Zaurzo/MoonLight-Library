@@ -1,4 +1,4 @@
-local util = {}
+local util = moon.extend(util)
 
 ---@param level? number
 function util.GetCurrentFile(level)

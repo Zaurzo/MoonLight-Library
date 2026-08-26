@@ -58,9 +58,9 @@ local add_cs_import = SERVER and function(path, is_dir)
 end
 
 function moon.importcs(pkg)
-    local path, is_dir = import.getpath(pkg)
-
     if SERVER then
+        local path, is_dir = import.getpath(pkg)
+        
         add_cs_import(path, is_dir)
     end
 
