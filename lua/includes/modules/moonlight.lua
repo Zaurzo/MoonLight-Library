@@ -26,7 +26,7 @@ end
 
 local extension_meta = {
     __index = function(self, key)
-        local mdule = rawget(self, '__mdule')
+        local mdule = rawget(self, 'super')
         local value = mdule[key]
 
         self[key] = value
@@ -39,7 +39,7 @@ local extension_meta = {
 ---@return table
 function moonlight.extend(mdule)
     local extension = {}
-    extension.__mdule = mdule
+    extension.super = mdule
 
     return setmetatable(extension, extension_meta)
 end
