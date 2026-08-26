@@ -1,4 +1,4 @@
-local debug = moonlight.extend(debug)
+local debug = moon.extend(debug)
 local func_info_cache = setmetatable({}, { __mode = 'k' })
 
 ---@param func function
@@ -9,7 +9,7 @@ function debug.funcinfo(func)
         return info
     end
 
-    moonlight.assert(isfunction(func), 'funcinfo: expected function', 2)
+    moon.assert(isfunction(func), 'funcinfo: expected function', 2)
 
     info = debug.getinfo(func)
     info.func = nil -- remove strong reference
@@ -30,7 +30,7 @@ function debug.funcinfo(func)
     return info
 end
 
-local import = moonlight.import
+local import = moon.import
 
 ---@param pkg string
 function debug.clearimport(pkg)

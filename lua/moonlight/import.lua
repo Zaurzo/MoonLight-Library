@@ -39,7 +39,7 @@ function import.isloaded(pkg)
     return import._cache[path] ~= nil
 end
 
-function moonlight.importcs(pkg)
+function moon.importcs(pkg)
     local path, is_dir = import.getpath(pkg)
 
     if is_dir then
@@ -51,7 +51,7 @@ function moonlight.importcs(pkg)
     return import(pkg)
 end
 
-function moonlight.AddCSLuaImport(pkg)
+function moon.AddCSLuaImport(pkg)
     local path, is_dir = import.getpath(pkg)
 
     if is_dir then

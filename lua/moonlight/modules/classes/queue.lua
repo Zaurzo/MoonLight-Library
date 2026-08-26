@@ -1,5 +1,5 @@
 ---@class Queue
-local Queue = moonlight.class('Queue')
+local Queue = moon.class('Queue')
 
 function Queue:init()
     self._tail = 1

@@ -1,4 +1,4 @@
-local table = moonlight.extend(table)
+local table = moon.extend(table)
 
 ---@param ... any
 ---@return table
@@ -16,7 +16,7 @@ local weak_metatables = {
 ---@return table
 function table.weak(mode)
     local meta = mode and weak_metatables[mode]
-    moonlight.assert(meta, 'invalid mode (expected k, v, or kv)', 2)
+    moon.assert(meta, 'invalid mode (expected k, v, or kv)', 2)
 
     return setmetatable({}, meta)
 end

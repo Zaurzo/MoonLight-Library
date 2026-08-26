@@ -8,7 +8,7 @@ local reserved = {
 }
 
 function class_meta:__newindex(k, v)
-    moonlight.assert(not reserved[k], 'cannot override reserved field %q', 2, k)
+    moon.assert(not reserved[k], 'cannot override reserved field %q', 2, k)
 
     self._class[k] = v
 end
@@ -90,7 +90,7 @@ end
 local emptyf = function() end
 
 local function new_class(self, name, base)
-    moonlight.assert(isstring(name), 'class name is not a string', 2)
+    moon.assert(isstring(name), 'class name is not a string', 2)
 
     local class = { init = emptyf }
 
@@ -99,7 +99,7 @@ local function new_class(self, name, base)
     class.__tostring = instance_tostring
 
     if base then
-        moonlight.assert(self.ismoonlight(base), 'base class is not a moonlight class', 2)
+        moon.assert(self.ismoonlight(base), 'base class is not a moonlight class', 2)
 
         setmetatable(class, base._class)
     end

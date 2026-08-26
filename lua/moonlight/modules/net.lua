@@ -1,4 +1,4 @@
-local net = moonlight.extend(net)
+local net = moon.extend(net)
 local moon_receivers = {}
 
 net.Pool = util.AddNetworkString

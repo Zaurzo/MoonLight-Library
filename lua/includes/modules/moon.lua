@@ -3,16 +3,16 @@ AddCSLuaFile()
 -- MoonLight Library
 -- By Zaurzo
 
-moonlight = {}
+moon = {}
 
-moonlight.import = include('moonlight/import.lua')
-moonlight.class = include('moonlight/class.lua')
+moon.import = include('moonlight/import.lua')
+moon.class = include('moonlight/class.lua')
 
 ---@param expr any The expression to assert.
 ---@param msg? string The error message to throw if the assertion fails.
 ---@param level? number The level to throw the error at.
 ---@param ... string The parameters to use to format the error message string.
-function moonlight.assert(expr, msg, level, ...)
+function moon.assert(expr, msg, level, ...)
     if not expr then
         msg = msg or 'assertion failed!'
 
@@ -39,7 +39,7 @@ local extension_meta = {
 
 ---@param mdule table
 ---@return table
-function moonlight.extend(mdule)
+function moon.extend(mdule)
     local extension = {}
     extension.super = mdule
 
