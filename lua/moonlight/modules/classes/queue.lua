@@ -1,7 +1,5 @@
-local class = moonlight.importcs('class')
-
 ---@class Queue
-local Queue = class('Queue')
+local Queue = moonlight.class('Queue')
 
 function Queue:init()
     self._tail = 1

@@ -4,7 +4,9 @@ AddCSLuaFile()
 -- By Zaurzo
 
 moonlight = {}
+
 moonlight.import = include('moonlight/import.lua')
+moonlight.class = include('moonlight/class.lua')
 
 ---@param expr any The expression to assert.
 ---@param msg? string The error message to throw if the assertion fails.
