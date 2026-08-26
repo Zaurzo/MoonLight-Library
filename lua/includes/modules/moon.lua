@@ -35,7 +35,7 @@ local type = type
 ---@param expected_type string The type the argument value must be.
 ---@return any value
 function moon.assertarg(value, arg_num, expected_type)
-    local got_type = type(value)
+    local got_type = type(value) ---@as string
 
     if got_type == expected_type then
         return value

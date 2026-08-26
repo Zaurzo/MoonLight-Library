@@ -7,19 +7,7 @@ if SERVER then
     net.Pool('moonlight')
 end
 
----@param name string
----@param callback function
-function net.SetMoonReceiver(name, callback)
-    moon_receivers[name] = callback
-end
-
----@param name string
-function net.MoonStart(name)
-    net.Start('moonlight')
-    net.WriteString(name)
-end
-
-net.Receive('moonlight', function(len, ply)
+net.super.Receive('moonlight', function(len, ply)
     local receiver_name = net.ReadString()
     local receiver = moon_receivers[receiver_name]
 
@@ -27,5 +15,17 @@ net.Receive('moonlight', function(len, ply)
         return receiver(len, ply)
     end
 end)
+
+---@param name string
+---@param callback function
+function net.Receive(name, callback)
+    moon_receivers[name] = callback
+end
+
+---@param name string
+function net.Start(name)
+    net.super.Start('moonlight')
+    net.WriteString(name)
+end
 
 return net
