@@ -26,6 +26,27 @@ function moon.assert(expr, msg, level, ...)
     return expr
 end
 
+local BAD_ARG_ERROR = 'bad argument #%d to \'%s\' (%s expected, got %s)'
+local type = type
+
+---An assert method that, when fails, mimics the vanilla Lua bad argument error message.
+---@param value any The value of passed argument.
+---@param arg_num int The argument number.
+---@param expected_type string The type the argument value must be.
+---@return any value
+function moon.assertarg(value, arg_num, expected_type)
+    local got_type = type(value)
+
+    if got_type == expected_type then
+        return value
+    end
+
+    local func_name = debug.getinfo(2, 'n').name or '?'
+    local err = BAD_ARG_ERROR:format(arg_num, func_name, expected_type, got_type)
+
+    return error(err, 2)
+end
+
 local extension_meta = {
     __index = function(self, key)
         local mdule = rawget(self, 'super')

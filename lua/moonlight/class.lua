@@ -90,7 +90,7 @@ end
 local emptyf = function() end
 
 local function new_class(self, name, base)
-    moon.assert(isstring(name), 'class name is not a string', 2)
+    moon.assertarg(name, 1, 'string')
 
     local class = { init = emptyf }
 

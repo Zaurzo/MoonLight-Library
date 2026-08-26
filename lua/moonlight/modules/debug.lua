@@ -9,7 +9,7 @@ function debug.funcinfo(func)
         return info
     end
 
-    moon.assert(isfunction(func), 'funcinfo: expected function', 2)
+    moon.assertarg(func, 2, 'function')
 
     info = debug.getinfo(func)
     info.func = nil -- remove strong reference
