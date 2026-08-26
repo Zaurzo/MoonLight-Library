@@ -39,7 +39,7 @@ function import.isloaded(pkg)
     return import._cache[path] ~= nil
 end
 
-local function add_cs_import(path, is_dir)
+local add_cs_import = SERVER and function(path, is_dir)
     if not is_dir then
         return AddCSLuaFile(path)
     end
