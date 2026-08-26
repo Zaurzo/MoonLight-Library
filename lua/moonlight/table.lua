@@ -22,15 +22,20 @@ function table.weak(mode)
 end
 
 ---@param tbl table
+---@param deep boolean
 ---@return table copy
-function table.ShallowCopy(tbl)
-    local copy = {}
+function table.copy(tbl, deep)
+    if not deep then
+        local copy = {}
 
-    for k, v in pairs(tbl) do
-        copy[k] = v
+        for k, v in pairs(tbl) do
+            copy[k] = v
+        end
+
+        return copy
     end
 
-    return copy
+    return table.Copy(tbl)
 end
 
 return table
