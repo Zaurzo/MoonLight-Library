@@ -4,6 +4,17 @@ local BytecodeReader = moon.class('BytecodeReader')
 -- Some code was adapted from notcake's GLib library
 -- That man is much smarter than me, haha. - Zaurzo
 
+---@enum BCDUMP_KTAB Type codes for the keys/values of a constant table.
+---https://github.com/LuaJIT/LuaJIT/blob/v2.1/src/lj_bcdump.h#L59
+local BCDUMP_KTAB = {
+    Nil = 0,
+    False = 1,
+    True = 2,
+    Integer = 3,
+    Number = 4,
+    String = 5
+}
+
 function BytecodeReader:init(dump)
     moon.assertarg(dump, 1, 'string')
 
@@ -71,33 +82,24 @@ function BytecodeReader:double()
 	return negative and -f or f
 end
 
+local deserializer = {
+    [BCDUMP_KTAB.Nil] = nil,
+    [BCDUMP_KTAB.False] = false,
+    [BCDUMP_KTAB.True] = true,
+    [BCDUMP_KTAB.Integer] = BytecodeReader.byte,
+    [BCDUMP_KTAB.Number] = BytecodeReader.double,
+    [BCDUMP_KTAB.String] = BytecodeReader.string
+}
+
 ---@param reader BytecodeReader
 local function deserialize_element(reader)
     local t = reader:uleb()
 
-    if t == 0 then
-        return nil
+    if t > 2 then
+        return deserializer[t] (reader, t)
     end
 
-    if t == 1 then
-        return false
-    end
-
-    if t == 2 then
-        return true
-    end
-
-    if t == 3 then -- integer
-        return reader:uleb()
-    end
-
-    if t == 4 then
-        return reader:double()
-    end
-
-    if t >= 5 then
-        return reader:string(t)
-    end
+    return deserializer[t]
 end
 
 ---@return table
@@ -111,7 +113,7 @@ function BytecodeReader:table()
         ktab[i] = deserialize_element(self)
     end
 
-    for i = 1, hash_count do
+    for _ = 1, hash_count do
         local key = deserialize_element(self)
         local value = deserialize_element(self)
 
