@@ -9,7 +9,7 @@ function debug.funcinfo(func)
         return info
     end
 
-    moon.assertarg(func, 2, 'function')
+    moon.assertarg(func, 1, 'function')
 
     info = debug.getinfo(func)
     info.func = nil -- remove strong reference
