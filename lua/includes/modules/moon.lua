@@ -47,14 +47,23 @@ function moon.assertarg(value, arg_num, expected_type)
     return error(err, 2)
 end
 
+-- [[ Extending ]]
+
 local extension_meta = {
     __index = function(self, key)
         local super = rawget(self, 'super')
         local value = super[key]
 
-        self[key] = value
+        rawset(self, key, value)
 
         return value
+    end,
+    __newindex = function(self, k, v)
+        -- Insert the name of the new field to the extension table.
+        -- We treat this array portion as a list of all the fields from the actual extension.
+
+        rawset(self, #self + 1, k)
+        rawset(self, k, v)
     end
 }
 
@@ -67,17 +76,15 @@ function moon.extend(tbl)
     return setmetatable(extension, extension_meta)
 end
 
-local function install(self, target)
-    local mt = getmetatable(target)
+-- [[ Extending Meta Tables ]]
 
+local function install(self, target)
     if isentity(target) then
         target = target:GetTable()
     end
 
-    for k, v in pairs(self) do
-        if not mt[k] then
-            target[k] = v
-        end
+    for _, name in ipairs(self) do
+        target[name] = self[name]
     end
 end
 
