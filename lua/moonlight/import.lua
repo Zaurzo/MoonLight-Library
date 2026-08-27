@@ -59,20 +59,16 @@ end
 
 function moon.importcs(pkg)
     if SERVER then
-        local path, is_dir = import.getpath(pkg)
-        
-        add_cs_import(path, is_dir)
+        add_cs_import(import.getpath(pkg))
     end
 
     return import(pkg)
 end
 
 function moon.AddCSLuaImport(pkg)
-    if CLIENT then return end
-
-    local path, is_dir = import.getpath(pkg)
-
-    return add_cs_import(path, is_dir)
+    if SERVER then
+        return add_cs_import(import.getpath(pkg))
+    end
 end
 
 ---@return table
