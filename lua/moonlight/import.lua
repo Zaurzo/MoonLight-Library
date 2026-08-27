@@ -99,9 +99,13 @@ local function import_package(self, pkg)
 
     if is_dir then
         if SERVER then
-            file_path = file_path .. '/init.lua'
+            file_path = path .. '/init.lua'
         else
-            file_path = file_path .. '/cl_init.lua'
+            file_path = path .. '/cl_init.lua'
+        end
+
+        if not file.Exists('lua/' .. file_path, 'GAME') then
+            file_path = path .. '/shared.lua'
         end
     end
 
