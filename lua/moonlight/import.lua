@@ -13,6 +13,7 @@ local is_moonlight_module = {
     ['table'] = true,
     ['util'] = true,
     ['jit'] = true,
+    ['entity'] = true,
     ['classes.queue'] = true
 }
 

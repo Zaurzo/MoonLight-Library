@@ -49,8 +49,8 @@ end
 
 local extension_meta = {
     __index = function(self, key)
-        local mdule = rawget(self, 'super')
-        local value = mdule[key]
+        local super = rawget(self, 'super')
+        local value = super[key]
 
         self[key] = value
 
@@ -58,11 +58,37 @@ local extension_meta = {
     end
 }
 
----@param mdule table
+---@param tbl table
 ---@return table
-function moon.extend(mdule)
+function moon.extend(tbl)
     local extension = {}
-    extension.super = mdule
+    extension.super = tbl
 
     return setmetatable(extension, extension_meta)
+end
+
+local function install(self, target)
+    local mt = getmetatable(target)
+
+    if isentity(target) then
+        target = target:GetTable()
+    end
+
+    for k, v in pairs(self) do
+        if not mt[k] then
+            target[k] = v
+        end
+    end
+end
+
+---@param meta_name string
+---@return table
+function moon.extendmeta(meta_name)
+    local meta = FindMetaTable(meta_name)
+    if not meta then return end
+
+    local extension = moon.extend(meta)
+    extension.Install = install
+
+    return extension
 end
