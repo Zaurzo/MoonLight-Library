@@ -1,6 +1,9 @@
 ---@class BytecodeReader
 local BytecodeReader = moon.class('BytecodeReader')
 
+-- Some code was adapted from notcake's GLib library
+-- That man is much smarter than me, haha. - Zaurzo
+
 function BytecodeReader:init(dump)
     moon.assertarg(dump, 1, 'string')
 

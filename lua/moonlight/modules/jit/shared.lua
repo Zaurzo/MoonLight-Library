@@ -43,7 +43,7 @@ function Proto:init(reader)
         end
     end
 
-    self._gc_const_count = gc_const_n
+    self._gc_const_n = gc_const_n
     self._gc_consts = gc_consts
 end
 
@@ -84,7 +84,7 @@ function jit.getgckonst(func, index)
 
     index = index - 1
 
-    return proto._gc_consts[proto._gc_const_count - index]
+    return proto._gc_consts[proto._gc_const_n - index]
 end
 
 ---Returns all garbage-collected constants in the function.
@@ -95,7 +95,7 @@ function jit.getgckonsts(func)
     local proto = proto_cache[func]
 
     if proto then
-        local count = proto._gc_const_count
+        local count = proto._gc_const_n
 
         for i = count, 1, -1 do
             gc_consts[count - (i - 1)] = proto._gc_consts[i]
