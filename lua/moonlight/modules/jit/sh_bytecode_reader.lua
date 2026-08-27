@@ -25,6 +25,29 @@ function BytecodeReader:init(dump)
     self:skip(self:uleb()) -- skip chunk name
 end
 
+function BytecodeReader:char(amount)
+    return string.char(self:byte(amount))
+end
+
+function BytecodeReader:string(len)
+    return self:char(len - 5)
+end
+
+function BytecodeReader:skip(amount)
+    self.pos = self.pos + amount
+end
+
+function BytecodeReader:byte(amount)
+    amount = amount or 1
+
+    local pos = self.pos
+    local end_pos = pos + amount
+
+    self.pos = end_pos
+
+    return self.dump:byte(pos, end_pos - 1)
+end
+
 -- credits: https://github.com/notcake/glib/blob/master/lua/glib/io/inbuffer.lua#L61-L79
 function BytecodeReader:uleb()
 	local n, factor = 0, 1
@@ -44,17 +67,6 @@ function BytecodeReader:uleb()
 	end
 	
 	return n
-end
-
-function BytecodeReader:byte(amount)
-    amount = amount or 1
-
-    local pos = self.pos
-    local end_pos = pos + amount
-
-    self.pos = end_pos
-
-    return self.dump:byte(pos, end_pos - 1)
 end
 
 -- credits: https://github.com/notcake/glib/blob/master/lua/glib/bitconverter.lua#L215-L240
@@ -82,24 +94,27 @@ function BytecodeReader:double()
 	return negative and -f or f
 end
 
-local deserializer = {
+local deserialize = {
     [BCDUMP_KTAB.Nil] = nil,
     [BCDUMP_KTAB.False] = false,
     [BCDUMP_KTAB.True] = true,
-    [BCDUMP_KTAB.Integer] = BytecodeReader.byte,
-    [BCDUMP_KTAB.Number] = BytecodeReader.double,
-    [BCDUMP_KTAB.String] = BytecodeReader.string
+    [BCDUMP_KTAB.Integer] = BytecodeReader.uleb,
+    [BCDUMP_KTAB.Number] = BytecodeReader.double
 }
 
 ---@param reader BytecodeReader
 local function deserialize_element(reader)
     local t = reader:uleb()
 
-    if t > 2 then
-        return deserializer[t] (reader, t)
+    if t >= BCDUMP_KTAB.String then
+        return reader:string(t)
     end
 
-    return deserializer[t]
+    if t > BCDUMP_KTAB.True then
+        return deserialize[t] (reader)
+    end
+
+    return deserialize[t]
 end
 
 ---@return table
@@ -121,18 +136,6 @@ function BytecodeReader:table()
     end
 
     return ktab
-end
-
-function BytecodeReader:char(amount)
-    return string.char(self:byte(amount))
-end
-
-function BytecodeReader:string(len)
-    return self:char(len - 5)
-end
-
-function BytecodeReader:skip(amount)
-    self.pos = self.pos + amount
 end
 
 return BytecodeReader

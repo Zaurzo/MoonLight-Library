@@ -7,6 +7,10 @@ local reserved = {
     __name = true
 }
 
+function class_meta:__index(k)
+    return self._class[k]
+end
+
 function class_meta:__newindex(k, v)
     moon.assert(not reserved[k], 'cannot override reserved field %q', 2, k)
 

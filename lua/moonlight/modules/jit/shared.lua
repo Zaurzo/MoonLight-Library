@@ -50,11 +50,14 @@ function Proto:init(reader)
             const = reader:table()
         elseif t >= BCDUMP_KGC.String then
             const = reader:string(t)
+            t = 5
         end
 
         if const then
             gc_const_n = gc_const_n + 1
+
             gc_consts[gc_const_n] = const
+            gc_consts[-gc_const_n] = t -- optimization: put the type in the negative index
         end
     end
 
@@ -86,10 +89,31 @@ setmetatable(proto_cache, {
     end
 })
 
+-- [[ Partially re-implement jit.util.funck ]]
+-- 
+-- These functions are inferior and return pseudos of some constants, such as tables.
+-- This is no problem though, as I only use it for analyzation.
+-- 
 -- TODO: Allow these functions to return pseudo protos
 
+---@param proto Proto
+---@param index int
 local function get_gc_const(proto, index)
-    return proto._gc_consts[proto._gc_const_n - index]
+    index = proto._gc_const_n - index
+
+    local const, t = proto._gc_consts[index], proto._gc_consts[-index]
+
+    if t == BCDUMP_KGC.Table then
+        local copy = {}
+
+        for k, v in pairs(const --[[@as table]]) do
+            copy[k] = v
+        end
+
+        const = copy
+    end
+
+    return const, t
 end
 
 ---Returns the garbage-collected constant in the function at the given index.
@@ -104,18 +128,27 @@ end
 
 ---Returns all garbage-collected constants in the function.
 ---@param func function
+---@param const_type? BCDUMP_KGC
 ---@return table<int, string|table>
-function jit.getconstsgc(func)
-    local gc_consts = {}
+function jit.getconstsgc(func, const_type)
     local proto = proto_cache[func]
+    if not proto then return {} end
 
-    if proto then
-        for i = 1, proto._gc_const_n do
-            gc_consts[i] = get_gc_const(proto, i - 1)
+    local gc_consts = {}
+    local n = 0
+
+    for i = 1, proto._gc_const_n do
+        local const, t = get_gc_const(proto, i - 1)
+
+        if not const_type or t == const_type then
+            n = n + 1
+            gc_consts[n] = const
         end
     end
 
     return gc_consts
 end
+
+jit.BCDUMP_KGC = BCDUMP_KGC
 
 return jit
