@@ -94,8 +94,8 @@ function moon.extendmeta(meta_name)
     local meta = FindMetaTable(meta_name)
     if not meta then return end
 
-    local extension = moon.extend(meta)
+    local extension = { super = meta }
     extension.Install = install
 
-    return extension
+    return setmetatable(extension, extension_meta)
 end
