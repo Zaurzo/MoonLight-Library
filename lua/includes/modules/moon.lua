@@ -4,14 +4,8 @@ AddCSLuaFile()
 -- By Zaurzo
 
 moon = {}
+moon.pass = function() end
 
-moon.import = include('moonlight/import.lua')
-moon.class = include('moonlight/class.lua')
-
----@param expr any The expression to assert.
----@param msg? string The error message to throw if the assertion fails.
----@param level? number The level to throw the error at.
----@param ... string The parameters to use to format the error message string.
 function moon.assert(expr, msg, level, ...)
     if not expr then
         msg = msg or 'assertion failed!'
@@ -29,11 +23,6 @@ end
 local BAD_ARG_ERROR = 'bad argument #%d to \'%s\' (%s expected, got %s)'
 local type = type
 
----An assert method that, when fails, mimics the vanilla Lua bad argument error message.
----@param value any The value of passed argument.
----@param arg_num int The argument number.
----@param expected_type string The type the argument value must be.
----@return any value
 function moon.assertarg(value, arg_num, expected_type)
     local got_type = type(value) ---@as string
 
@@ -49,31 +38,26 @@ end
 
 -- [[ Extending ]]
 
-local extension_meta = {
-    __index = function(self, key)
-        local super = rawget(self, 'super')
-        local value = super[key]
+local extension_meta = {}
 
-        rawset(self, key, value)
+function extension_meta:__index(key)
+    local super = rawget(self, 'super')
+    local value = super[key]
 
-        return value
-    end,
-    __newindex = function(self, k, v)
-        -- Insert the name of the new field to the extension table.
-        -- We treat this array portion as a list of all the fields from the actual extension.
+    rawset(self, key, value)
 
-        rawset(self, #self + 1, k)
-        rawset(self, k, v)
-    end
-}
+    return value
+end
 
----@param tbl table
----@return table
+-- Insert the name of the new field to the extension table.
+-- We treat this array portion as a list of all the fields from the actual extension.
+function extension_meta:__newindex(key, value)
+    rawset(self, #self + 1, key)
+    rawset(self, key, value)
+end
+
 function moon.extend(tbl)
-    local extension = {}
-    extension.super = tbl
-
-    return setmetatable(extension, extension_meta)
+    return setmetatable({ super = tbl }, extension_meta)
 end
 
 -- [[ Extending Meta Tables ]]
@@ -88,8 +72,6 @@ local function install(self, target)
     end
 end
 
----@param meta_name string
----@return table
 function moon.extendmeta(meta_name)
     local meta = FindMetaTable(meta_name)
     if not meta then return end
@@ -99,3 +81,24 @@ function moon.extendmeta(meta_name)
 
     return setmetatable(extension, extension_meta)
 end
+
+--[[ Callables ]]
+
+local callable_meta = {}
+callable_meta.__index = callable_meta
+
+function callable_meta:setcall(call)
+    self.__call = call
+end
+
+function callable_meta:__call(...)
+    return self:__call(...)
+end
+
+-- Creates a callable library.
+function moon.callable(func)
+    return setmetatable({ __call = func }, callable_meta)
+end
+
+moon.import = include('moonlight/import.lua')
+moon.class = include('moonlight/class.lua')

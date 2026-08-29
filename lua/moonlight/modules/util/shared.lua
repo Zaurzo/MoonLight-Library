@@ -1,6 +1,5 @@
 local util = moon.extend(util)
 
----@param level? number
 function util.GetCurrentFile(level)
     level = level or 1
 

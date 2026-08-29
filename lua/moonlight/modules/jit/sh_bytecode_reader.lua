@@ -1,29 +1,83 @@
----@class BytecodeReader
-local BytecodeReader = moon.class('BytecodeReader')
-
 -- Some code was adapted from notcake's GLib library
 -- That man is much smarter than me, haha. - Zaurzo
 
----@enum BCDUMP_KTAB Type codes for the keys/values of a constant table.
----https://github.com/LuaJIT/LuaJIT/blob/v2.1/src/lj_bcdump.h#L59
-local BCDUMP_KTAB = {
-    Nil = 0,
-    False = 1,
-    True = 2,
-    Integer = 3,
-    Number = 4,
-    String = 5
-}
+--[[ Bytecode Reader ]]
+
+local BytecodeReader = moon.class('BytecodeReader')
+local BCDUMP = moon.import.include('sh_bcdump_enum.lua')
+local Proto = moon.import.include('sh_proto.lua')
 
 function BytecodeReader:init(dump)
     moon.assertarg(dump, 1, 'string')
 
-    self.pos = 1
-    self.dump = dump
+    self._pos = 1
+    self._dump = dump
 
-    self:skip(5) -- skip header, version, and flags
-    self:skip(self:uleb()) -- skip chunk name
+    self:skip(3) -- skip header
+    self:skip(1) -- skip version
+
+    self._flags = self:byte()
+    self._source = self:char(self:uleb())
+
+    local protos = {}
+    local proto_n = 0
+    local proto_length = self:uleb()
+
+    while proto_length ~= 0 do
+        local proto_end = proto_length + self._pos
+        
+        proto_n = proto_n + 1
+        protos[proto_n] = Proto:new(self)
+
+        self._pos = proto_end
+
+        proto_length = self:uleb()
+    end
+
+    self._proto_n = proto_n
+    self._protos = protos
+
+    self:_link_protos(proto_n - 1, protos[proto_n])
 end
+
+-- internal
+function BytecodeReader:_link_protos(child_index, proto)
+    for i = 1, proto:constcountgc() do
+        local const, t = proto:getconstgc(i)
+        if t ~= BCDUMP.KGC.Child then continue end
+
+        local child_proto = self._protos[child_index]
+        proto._gc_consts[i] = child_proto
+
+        child_index = child_index - 1
+
+        if child_proto then
+            self:_link_protos(child_index, child_proto)
+        end
+    end
+end
+
+-- Accessors
+
+function BytecodeReader:flags()
+    return self._flags
+end
+
+function BytecodeReader:source()
+    return self._source
+end
+
+function BytecodeReader:getproto(index)
+    index = index - 1
+
+    return self._protos[self._proto_n - index]
+end
+
+function BytecodeReader:protocount()
+    return self._proto_n
+end
+
+-- Reading / parsing
 
 function BytecodeReader:char(amount)
     return string.char(self:byte(amount))
@@ -34,18 +88,18 @@ function BytecodeReader:string(len)
 end
 
 function BytecodeReader:skip(amount)
-    self.pos = self.pos + amount
+    self._pos = self._pos + amount
 end
 
 function BytecodeReader:byte(amount)
     amount = amount or 1
 
-    local pos = self.pos
+    local pos = self._pos
     local end_pos = pos + amount
 
-    self.pos = end_pos
+    self._pos = end_pos
 
-    return self.dump:byte(pos, end_pos - 1)
+    return string.byte(self._dump, pos, end_pos - 1)
 end
 
 -- credits: https://github.com/notcake/glib/blob/master/lua/glib/io/inbuffer.lua#L61-L79
@@ -95,22 +149,22 @@ function BytecodeReader:double()
 end
 
 local deserialize = {
-    [BCDUMP_KTAB.Nil] = nil,
-    [BCDUMP_KTAB.False] = false,
-    [BCDUMP_KTAB.True] = true,
-    [BCDUMP_KTAB.Integer] = BytecodeReader.uleb,
-    [BCDUMP_KTAB.Number] = BytecodeReader.double
+    [BCDUMP.KTAB.Nil] = nil,
+    [BCDUMP.KTAB.False] = false,
+    [BCDUMP.KTAB.True] = true,
+    [BCDUMP.KTAB.Integer] = BytecodeReader.uleb,
+    [BCDUMP.KTAB.Number] = BytecodeReader.double
 }
 
 ---@param reader BytecodeReader
 local function deserialize_element(reader)
     local t = reader:uleb()
 
-    if t >= BCDUMP_KTAB.String then
+    if t >= BCDUMP.KTAB.String then
         return reader:string(t)
     end
 
-    if t > BCDUMP_KTAB.True then
+    if t > BCDUMP.KTAB.True then
         return deserialize[t] (reader)
     end
 

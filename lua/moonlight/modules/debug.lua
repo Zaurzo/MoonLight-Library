@@ -1,7 +1,6 @@
 local debug = moon.extend(debug)
 local func_info_cache = setmetatable({}, { __mode = 'k' })
 
----@param func function
 function debug.funcinfo(func)
     local info = func_info_cache[func]
     
@@ -32,7 +31,6 @@ end
 
 local import = moon.import
 
----@param pkg string
 function debug.clearimport(pkg)
     if pkg == '*' then
         import._cache = {}
@@ -43,7 +41,6 @@ function debug.clearimport(pkg)
     end
 end
 
----@param enabled boolean
 function debug.setcacheimports(enabled)
     import._caching_enabled = enabled
 end

@@ -1,4 +1,3 @@
----@class Queue
 local Queue = moon.class('Queue')
 
 function Queue:init()

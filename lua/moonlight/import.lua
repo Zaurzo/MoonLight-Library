@@ -1,9 +1,9 @@
 AddCSLuaFile()
 
-local import = {
-    _cache = {},
-    _caching_enabled = true
-}
+local import = moon.callable()
+
+import._cache = {}
+import._caching_enabled = true
 
 -- A hard-coded list is required as none of the modules are sent to the client by default
 -- Therefore, file.Find will not find them on the client-side
@@ -17,12 +17,11 @@ local is_moonlight_module = {
     ['classes.queue'] = true
 }
 
----@param pkg string
----@return string path
----@return boolean isDirectory
 function import.getpath(pkg)
     if is_moonlight_module[pkg] then
         pkg = 'moonlight.modules.' .. pkg
+    elseif file.Exists('lua/' .. pkg, 'GAME') then
+        return pkg, false
     end
 
     local path = pkg:gsub('%.', '/')
@@ -34,7 +33,17 @@ function import.getpath(pkg)
     return path .. '.lua', false
 end
 
----@param pkg string
+function import.include(file_name)
+    local source = debug.getinfo(2, 'S').source
+    local _, pos = source:find('lua/')
+
+    if not pos then return end
+
+    local folder = source:sub(pos + 1):GetPathFromFilename()
+
+    return import(folder .. file_name)
+end
+
 function import.isloaded(pkg)
     local path = import.getpath(pkg)
 
@@ -73,14 +82,10 @@ function moon.AddCSLuaImport(pkg)
     end
 end
 
----@return table
 local function pack(...)
     return { n = select('#', ...), ... }
 end
 
----@param pkg string
----@param ...? string
----@return ... any
 local function import_package(self, pkg)
     local path, is_dir = import.getpath(pkg)
     local rets = import._caching_enabled and import._cache[path]
@@ -118,6 +123,6 @@ local function import_package(self, pkg)
     import._cache[path] = true
 end
 
-setmetatable(import, { __call = import_package })
+import:setcall(import_package)
 
 return import

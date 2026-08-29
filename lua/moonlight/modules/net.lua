@@ -16,13 +16,10 @@ net.super.Receive('moonlight', function(len, ply)
     end
 end)
 
----@param name string
----@param callback function
 function net.Receive(name, callback)
     moon_receivers[name] = callback
 end
 
----@param name string
 function net.Start(name)
     net.super.Start('moonlight')
     net.WriteString(name)

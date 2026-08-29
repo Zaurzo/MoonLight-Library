@@ -1,8 +1,5 @@
 local util = include('shared.lua')
 
----@param pos Vector
----@param magnitude? number
----@param radius? number
 function util.Explosion(pos, magnitude, radius)
     moon.assertarg(pos, 1, 'Vector')
 

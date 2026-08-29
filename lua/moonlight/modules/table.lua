@@ -1,14 +1,9 @@
 local table = moon.extend(table)
 
----@param ... any
----@return table
 function table.ipack(...)
     return { [0] = select('#', ...), ... }
 end
 
----@param tbl table
----@param deep boolean
----@return table copy
 function table.copy(tbl, deep)
     if not deep then
         local copy = {}
@@ -29,8 +24,6 @@ local weak_metatables = {
     kv = { __mode = 'kv' }
 }
 
----@param mode string
----@return table
 function table.weak(mode)
     local meta = mode and weak_metatables[mode]
     moon.assert(meta, 'invalid mode (must be k, v, or kv)', 2)
