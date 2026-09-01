@@ -13,7 +13,7 @@ function jit.dumpbc(func)
     return BytecodeReader:new(dump)
 end
 
-local proto_cache = {}
+local proto_cache = setmetatable({}, { __mode = 'k' })
 
 function jit.getproto(func)
     local proto = proto_cache[func]
