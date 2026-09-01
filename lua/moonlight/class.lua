@@ -32,6 +32,14 @@ local function instance_tostring(self)
     return string.format('%s: %p', class.__name, self)
 end
 
+local function meta_merge(class, base)
+    for k, v in pairs(base) do
+        if isstring(k) and k:sub(1, 2) == '__' then
+            class[k] = v
+        end
+    end
+end
+
 local function new(class, ...)
     local instance = setmetatable({}, class)
 
@@ -41,23 +49,11 @@ local function new(class, ...)
     return instance
 end
 
-local function meta_merge(class, base)
-    for k, v in pairs(base) do
-        if isstring(k) and k:sub(1, 2) == '__' then
-            class[k] = v
-        end
-    end
-end
-
 local function create_class(self, name, base, inherit_meta_methods)
     moon.assertarg(name, 1, 'string')
 
-    local class = {
-        init = moon.pass,
-        new = new,
-        __name = name,
-        __tostring = instance_tostring
-    }
+    local class = {}
+    class.__tostring = instance_tostring
 
     if base then
         moon.assertarg(base, 2, 'table')
@@ -67,9 +63,13 @@ local function create_class(self, name, base, inherit_meta_methods)
         end
 
         setmetatable(class, base)
+    else
+        class.init = moon.pass
+        class.new = new
     end
 
-    class.__index = class
+    rawset(class, '__name', name)
+    rawset(class, '__index', class)
 
     return class
 end
