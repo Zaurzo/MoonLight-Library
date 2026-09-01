@@ -41,7 +41,8 @@ local function meta_merge(class, base)
 end
 
 local function new(class, ...)
-    local instance = setmetatable({}, class)
+    local instance = { base = getmetatable(class) }
+    setmetatable(instance, class)
 
     instance:init(...)
     instance.init = instance_init
