@@ -45,7 +45,8 @@ local function new(class, ...)
     setmetatable(instance, class)
 
     instance:init(...)
-    instance.init = instance_init
+
+    rawset(instance, 'init', instance_init)
 
     return instance
 end
