@@ -6,7 +6,7 @@ function entity.Kill(self, dmginfo)
     if dmginfo then
         local dmg = dmginfo:GetDamage()
 
-        if math.IsNearlyEqual(dmg, 0) then
+        if dmg < 0 or math.IsNearlyEqual(dmg, 0) then
             dmginfo:SetDamage(1)
         end
 
