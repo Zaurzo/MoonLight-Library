@@ -14,6 +14,7 @@ local is_moonlight_module = {
     ['util'] = true,
     ['jit'] = true,
     ['entity'] = true,
+    ['color'] = true,
     ['classes.queue'] = true
 }
 
