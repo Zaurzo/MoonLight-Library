@@ -2,10 +2,10 @@ local hooks = {}
 
 -- PreEntityIgnite --
 
-local name = 'Moon.PreEntityIgnite'
+local hook_name = 'Moon.PreEntityIgnite'
 
 -- Catch env_entity_igniter
-hook.Add('AcceptInput', name, function(ent, input)
+hook.Add('AcceptInput', hook_name, function(ent, input)
     if not input or input:lower() ~= 'ignite' then return end
     if ent:GetClass() ~= 'env_entity_igniter' then return end
 
@@ -14,7 +14,7 @@ hook.Add('AcceptInput', name, function(ent, input)
 
     if not target then return end
 
-    local can_ignite = hook.Run(name, target, key_values.lifetime, 0 --[[radius = 0]])
+    local can_ignite = hook.Run(hook_name, target, key_values.lifetime, 0 --[[radius = 0]])
 
     if can_ignite == false then
         return true
@@ -31,13 +31,13 @@ local Ignite = meta_Entity.Ignite
 function meta_Entity:Ignite(life_time, radius, ...)
     radius = radius or 0
 
-    local can_ignite = hook.Run(name, self, life_time, radius)
+    local can_ignite = hook.Run(hook_name, self, life_time, radius)
 
     if can_ignite ~= false then
         return Ignite(self, life_time, radius, ...)
     end
 end
 
-table.insert(hooks, name)
+table.insert(hooks, hook_name)
 
 return hooks
