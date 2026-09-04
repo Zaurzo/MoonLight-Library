@@ -16,7 +16,8 @@ local is_moonlight_module = {
     ['entity'] = true,
     ['color'] = true,
     ['rndx'] = true,
-    ['classes.queue'] = true
+    ['classes.queue'] = true,
+    ['hooks.entity'] = true
 }
 
 function import.getpath(pkg)
