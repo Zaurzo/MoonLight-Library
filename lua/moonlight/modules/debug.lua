@@ -1,4 +1,15 @@
 local debug = moon.extend(debug)
+
+function debug.stackdepth()
+    local level = 3
+
+    while debug.getinfo(level, '') do
+        level = level + 1
+    end
+
+    return level - 2
+end
+
 local func_info_cache = setmetatable({}, { __mode = 'k' })
 
 function debug.funcinfo(func)
