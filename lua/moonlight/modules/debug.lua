@@ -13,7 +13,6 @@ function debug.funcinfo(func)
     info = debug.getinfo(func)
     info.func = nil -- remove strong reference
 
-    ---@diagnostic disable-next-line
     local jit_info = jit.util.funcinfo(func)
 
     -- Merge some debug info from jit.util.funcinfo

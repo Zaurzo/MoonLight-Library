@@ -100,5 +100,5 @@ function moon.callable(func)
     return setmetatable({ __call = func }, callable_meta)
 end
 
-moon.import = include('moonlight/import.lua')
-moon.class = include('moonlight/class.lua')
+moon.import = IncludeCS('moonlight/import.lua')
+moon.class = IncludeCS('moonlight/class.lua')

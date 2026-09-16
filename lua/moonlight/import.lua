@@ -12,6 +12,7 @@ local is_moonlight_module = {
     ['net'] = true,
     ['table'] = true,
     ['util'] = true,
+    ['math'] = true,
     ['jit'] = true,
     ['entity'] = true,
     ['color'] = true,
