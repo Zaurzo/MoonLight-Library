@@ -28,4 +28,29 @@ function util.GetCurrentFile(level)
     return info.source:sub(2)
 end
 
+local wreg = moon.getweakregistry()
+
+local function iterator_cache_invalid()
+    local _, cache = ents.Iterator() -- entity cache gets refreshed every time an entity is created or removed
+    local is_invalid = cache ~= wreg[1]
+
+    wreg[1] = cache
+
+    return is_invalid
+end
+
+function util.CreateEntityIterator(collector)
+    local cache
+
+    local function iterator()
+        if iterator_cache_invalid() then
+            cache = collector()
+        end
+
+        return ipairs(cache)
+    end
+
+    return iterator
+end
+
 return util
