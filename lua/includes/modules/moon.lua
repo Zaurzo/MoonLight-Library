@@ -36,6 +36,12 @@ function moon.assertarg(value, arg_num, expected_type)
     return error(err, 2)
 end
 
+local weak_registry = setmetatable({}, { __mode = 'kv' })
+
+function moon.getweakregistry()
+    return weak_registry
+end
+
 -- [[ Extending ]]
 
 local extension_meta = {}
