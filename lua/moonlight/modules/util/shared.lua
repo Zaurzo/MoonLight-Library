@@ -28,16 +28,17 @@ function util.GetCurrentFile(level)
     return info.source:sub(2)
 end
 
-function util.CreateEntityIterator(collector)
-    local cache
-    local entity_cache
+local wreg = moon.getweakregistry()
 
-    local function iterator()
-        local _, current_entity_cache = ents.Iterator()
+function util.CreateEntityIterator(collector)
+    local cache, iterator
+
+    function iterator()
+        local _, entity_cache = ents.Iterator() -- entity cache gets refreshed any time an entity is created or removed
         
-        if entity_cache ~= current_entity_cache then
+        if wreg[iterator] ~= entity_cache then
             cache = collector()
-            entity_cache = current_entity_cache
+            wreg[iterator] = entity_cache
         end
 
         return ipairs(cache)
