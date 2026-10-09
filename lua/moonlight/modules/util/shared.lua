@@ -43,7 +43,7 @@ function util.CreateEntityIterator(collector)
     local cache
 
     local function iterator()
-        if iterator_cache_invalid() then
+        if not cache or iterator_cache_invalid() then
             cache = collector()
         end
 
